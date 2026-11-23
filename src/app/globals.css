@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+/* Token màu theo vai trò (palette chuẩn của dataviz skill). Sáng mặc định, tối theo hệ điều hành. */
+:root {
+  color-scheme: light;
+  --page: #f6f6f4;
+  --surface: #ffffff;
+  --ink-1: #0b0b0b;
+  /* Chữ phụ / chú thích gần đen cho dễ đọc (trước: xám #52514e / #898781) */
+  --ink-2: #1c1b19;
+  --ink-muted: #45443f;
+  --grid: #e1e0d9;
+  /* === 2 NÚM CHỈNH TOÀN HỆ THỐNG: đổi ở đây là mọi trang đổi theo ===
+     --fill: nền khối phụ (thanh tab, ô tìm, nút, chip…) — lớp Tailwind bg-grid dùng màu này
+     --ui-radius: bo góc cho mọi rounded / rounded-sm / -md / -lg / -xl… (hình tròn rounded-full giữ nguyên) */
+  --fill: #efefed;
+  --ui-radius: 5px;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --accent: #2a78d6;
+  --good: #006300;
+  --bad: #d03b3b;
+  --warn-bg: #fff4dc;
+  --warn-ink: #7a5200;
+  --star: #946200;   /* SP Ngôi sao: vàng */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+  /* Kết quả đánh giá (đã kiểm tra CVD; WIN↔FAIL luôn kèm chữ, không đặt cạnh nhau) */
+  --res-win: #008300;
+  --res-wt: #2a78d6;
+  --res-wsp: #c25e0a;
+  --res-fail: #e34948;
+  --res-testing: #c3c2b7;
+}
+
+/* Tối: theo hệ điều hành, trừ khi người dùng chọn "Sáng" (data-theme="light").
+   BẬC NỀN phải tách rõ: page (#080807) < surface/card (#1e1e1d) < fill/khối phụ (#302f2d), cộng viền sáng 16%.
+   Bản cũ (page #0d0d0d, surface #1a1a19, viền 10%) chỉ chênh 1.12:1 nên card tan vào nền — nền tối gần đen thì mắt
+   dựa vào VIỀN là chính, nhớ chỉnh --border cùng lúc nếu đổi hai màu nền này. Chế độ sáng giữ nguyên. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #080807;
+    --surface: #1e1e1d;
+    --ink-1: #ffffff;
+    --ink-2: #f0efe9;
+    --ink-muted: #d0cfc6;
+    --grid: #2c2c2a;
+    --fill: #302f2d;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.16);
+    --accent: #3987e5;
+    --good: #0ca30c;
+    --bad: #e66767;
+    --warn-bg: #3a2c0a;
+    --warn-ink: #fab219;
+    --star: #f5b301;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --res-win: #008300;
+    --res-wt: #3987e5;
+    --res-wsp: #e8873a;
+    --res-fail: #e66767;
+    --res-testing: #52514e;
+  }
+}
+/* Tối: người dùng chọn "Tối" (thắng cả khi hệ điều hành đang sáng) */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #080807;
+  --surface: #1e1e1d;
+  --ink-1: #ffffff;
+  --ink-2: #f0efe9;
+  --ink-muted: #d0cfc6;
+  --grid: #2c2c2a;
+  --fill: #302f2d;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.16);
+  --accent: #3987e5;
+  --good: #0ca30c;
+  --bad: #e66767;
+  --warn-bg: #3a2c0a;
+  --warn-ink: #fab219;
+  --star: #f5b301;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+  --res-win: #008300;
+  --res-wt: #3987e5;
+  --res-wsp: #e8873a;
+  --res-fail: #e66767;
+  --res-testing: #52514e;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-muted: var(--ink-muted);
+  --color-grid: var(--fill);   /* nền khối phụ; đường lưới biểu đồ vẫn dùng var(--grid) */
+  --radius-xs: var(--ui-radius); --radius-sm: var(--ui-radius); --radius-md: var(--ui-radius); --radius-lg: var(--ui-radius);
+  --radius-xl: var(--ui-radius); --radius-2xl: var(--ui-radius); --radius-3xl: var(--ui-radius); --radius-4xl: var(--ui-radius); --radius: var(--ui-radius);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-ink: var(--warn-ink);
+  --color-res-win: var(--res-win);
+  --color-res-wt: var(--res-wt);
+  --color-res-wsp: var(--res-wsp);
+  --color-res-fail: var(--res-fail);
+  --color-res-testing: var(--res-testing);
+  /* Cùng bộ font với Lark: Mac → San Francisco, Windows → Segoe UI (nét rõ hơn Tahoma ở cỡ chữ nhỏ, đủ dấu tiếng Việt), máy Trung → PingFang / YaHei */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Tahoma, "PingFang SC", "Microsoft Yahei", Arial, "Hiragino Sans GB", sans-serif;
+}
+
+/* Thang cỡ chữ DUY NHẤT của hệ thống — mọi trang dùng chung, không dùng cỡ lẻ (text-[13px]…):
+   2xs 12 · xs 13 · sm 15 (nội dung, bảng, form — mặc định) · base 16 · lg 18 (tiêu đề trang) · xl 20 (số KPI) */
+@theme {
+  /* Cỡ chữ cả hệ thống (đã tăng ~2px so với bản gọn cũ: 11/12/13/14/16/18/20 → 12/13/15/16/18/20/22) */
+  --text-2xs: 0.75rem;    --text-2xs--line-height: 1.0625rem;
+  --text-xs: 0.8125rem;   --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;   --text-sm--line-height: 1.375rem;
+  --text-base: 1rem;      --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;    --text-lg--line-height: 1.625rem;
+  --text-xl: 1.25rem;     --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.375rem;   --text-2xl--line-height: 1.875rem;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+/* Tiêu đề: trang = lg (18px) · khu vực = base (16px) — đặt chung ở đây, không đặt cỡ riêng trên từng trang */
+@layer base {
+  h1 { font-size: var(--text-lg); line-height: var(--text-lg--line-height); font-weight: 600; }
+  h2 { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 600; }
+  h3 { font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 600; }
+}
+/* Ô nhập, nút, bảng dùng đúng font + cỡ của trang (trình duyệt mặc định cho input cỡ riêng) */
+button, input, select, textarea, table { font-family: inherit; font-size: inherit; }
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Sidebar: đầy đủ (15rem) hoặc thu gọn còn icon (4rem) — chỉ màn hình lớn; trạng thái ở <html data-sidebar="mini"> */
+@media (min-width: 64rem) {
+  .dash-main { padding-left: 15rem; }
+  .dash-side { width: 15rem; }
+  html[data-sidebar="mini"] .dash-main { padding-left: 4rem; }
+  html[data-sidebar="mini"] .dash-side { width: 4rem; }
+  html[data-sidebar="mini"] .mini-hide { display: none !important; }
+  html[data-sidebar="mini"] .mini-center { justify-content: center; padding-left: 0; padding-right: 0; }
+  html:not([data-sidebar="mini"]) .mini-only { display: none !important; }
+}
+@media (max-width: 63.99rem) { .mini-only { display: none !important; } }
+
+/* Đường kẻ bảng R&D đậm hơn (như Lark): ghi đè màu viền chỉ trong bảng; tự theo sáng/tối vì trộn từ màu chữ */
+.grid-lines { --border: color-mix(in srgb, var(--ink-1) 24%, var(--surface)); }
+
+/* Thanh cuộn luôn hiện cho vùng cuộn ngang / dọc (bảng, thẻ): Windows hay ẩn thanh cuộn "nổi" → bảng rộng không thấy chỗ kéo ngang.
+   Tuỳ biến ::-webkit-scrollbar buộc trình duyệt vẽ thanh cuộn thường trực */
+.overflow-auto, .overflow-x-auto, .overflow-y-auto {
+  scrollbar-width: thin;                                   /* Firefox */
+  scrollbar-color: var(--ink-muted) var(--grid);
+}
+.overflow-auto::-webkit-scrollbar, .overflow-x-auto::-webkit-scrollbar, .overflow-y-auto::-webkit-scrollbar { width: 12px; height: 12px; }
+.overflow-auto::-webkit-scrollbar-track, .overflow-x-auto::-webkit-scrollbar-track, .overflow-y-auto::-webkit-scrollbar-track { background: var(--grid); }
+.overflow-auto::-webkit-scrollbar-thumb, .overflow-x-auto::-webkit-scrollbar-thumb, .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--ink-muted); border-radius: 6px; border: 2px solid var(--grid);
+}
+.overflow-auto::-webkit-scrollbar-thumb:hover, .overflow-x-auto::-webkit-scrollbar-thumb:hover, .overflow-y-auto::-webkit-scrollbar-thumb:hover { background: var(--ink-1); }
+.overflow-auto::-webkit-scrollbar-corner { background: var(--grid); }
+
+/* Chữ đậm toàn hệ thống nhẹ hơn một bậc (extrabold → bold, bold → semibold, <b>/<strong> → semibold); viết ngoài @layer nên thắng các lớp tiện ích của Tailwind */
+.font-extrabold { font-weight: 700; }
+.font-bold { font-weight: 600; }
+b, strong { font-weight: 600; }
+
+/* ===== BẢNG: phối màu tươi sáng hơn, GIỮ NGUYÊN cấu trúc =====
+   Tiêu đề bảng kem vàng nhạt + chữ nâu đậm (không dùng xanh dương, tránh lòe loẹt cùng thẻ); hàng Tổng xanh bạc hà nhạt; rê chuột vào dòng ánh kem nhạt.
+   Viết ngoài @layer để thắng các lớp bg-page / bg-grid riêng lẻ của từng bảng; lưới dữ liệu R&D (DataGrid) chỉ đổi tiêu đề, không đụng màu dòng (có trạng thái chọn / sao chép). */
+:root {
+  --th-bg: #f4eedf;
+  --th-ink: #5c4a1e;
+  --th-line: #e3d9bf;
+  --foot-bg: #ecebe6;
+  --row-hover: #faf7ef;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --th-bg: #2b2a22; --th-ink: #e6d3a0; --th-line: #46422f; --foot-bg: #26261f; --row-hover: #201f1a; }
+}
+:root[data-theme="dark"] { --th-bg: #2b2a22; --th-ink: #e6d3a0; --th-line: #46422f; --foot-bg: #26261f; --row-hover: #201f1a; }
+.dash-main table:not(.keep-tbl table) thead, .dash-main table:not(.keep-tbl table) thead th { background-color: var(--th-bg); }
+.dash-main table:not(.keep-tbl table) thead th { color: var(--th-ink); border-color: var(--th-line); }
+.dash-main table:not(.keep-tbl table) tfoot td { background-color: var(--foot-bg); }
+.dash-main table:not(.no-row-hover):not(.keep-tbl table) tbody tr:hover > td:not([class*="bg-"]) { background-color: var(--row-hover); }
+
+/* ===== SIDEBAR: nền xanh dương nhạt (chuyển sắc dọc), mục đang chọn là thẻ trắng nổi ===== */
+:root {
+  --side-bg: #ffffff;
+  --side-line: #e4e8ee;
+  --side-hover: #f2f5fa;
+  --side-active: #e8f1fd;
+  --side-ring: transparent;
+  --side-title: #8a94a6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --side-bg: linear-gradient(180deg, #16243a 0%, #111b2c 100%); --side-line: #223552; --side-hover: rgba(255, 255, 255, .06); --side-active: #1f3556; --side-ring: #2e4a73; --side-title: #7fa3d6; }
+}
+:root[data-theme="dark"] { --side-bg: linear-gradient(180deg, #16243a 0%, #111b2c 100%); --side-line: #223552; --side-hover: rgba(255, 255, 255, .06); --side-active: #1f3556; --side-ring: #2e4a73; --side-title: #7fa3d6; }
+
+/* ===== THẺ NỔI (chế độ Thư viện của các bảng R&D): viền mảnh trong suốt + bóng đổ nhiều lớp mềm (gần – xa) cho cảm giác thẻ nâng khỏi nền; rê chuột thì nâng cao hơn ===== */
+:root { --c3-edge: rgba(15, 23, 42, .12); --c3-hi: rgba(255, 255, 255, .9); --c3-sh: 15, 23, 42; --c3-a: .07; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --c3-edge: rgba(255, 255, 255, .1); --c3-hi: rgba(255, 255, 255, .06); --c3-sh: 0, 0, 0; --c3-a: .35; }
+}
+:root[data-theme="dark"] { --c3-edge: rgba(255, 255, 255, .1); --c3-hi: rgba(255, 255, 255, .06); --c3-sh: 0, 0, 0; --c3-a: .35; }
+.card3d {
+  border: 1px solid var(--c3-edge);
+  box-shadow: inset 0 1px 0 var(--c3-hi),
+    0 1px 1px rgba(var(--c3-sh), var(--c3-a)),
+    0 3px 6px rgba(var(--c3-sh), var(--c3-a)),
+    0 10px 20px -6px rgba(var(--c3-sh), calc(var(--c3-a) * 1.7)),
+    0 22px 36px -16px rgba(var(--c3-sh), calc(var(--c3-a) * 1.7));
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.card3d:hover {
+  transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: inset 0 1px 0 var(--c3-hi),
+    0 2px 2px rgba(var(--c3-sh), var(--c3-a)),
+    0 6px 12px rgba(var(--c3-sh), calc(var(--c3-a) * 1.3)),
+    0 16px 28px -8px rgba(var(--c3-sh), calc(var(--c3-a) * 2.2)),
+    0 30px 48px -18px rgba(var(--c3-sh), calc(var(--c3-a) * 2.2));
+}
+
+/* ===== ĐANG TẢI THEO BỘ LỌC MỚI (FilterBar đặt html[data-filter-pending]): làm mờ nội dung trang và hiện nhãn, để không đọc nhầm số liệu của bộ lọc cũ ===== */
+html[data-filter-pending] .dash-main > * { opacity: .4; pointer-events: none; transition: opacity .15s ease; }
+html[data-filter-pending] .dash-main::before {
+  content: "Đang tải số liệu theo bộ lọc mới…";
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 60;
+  padding: 6px 14px; border-radius: var(--ui-radius); background: var(--accent); color: #fff; font-size: 13px; font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+}
+
+/* Vùng cuộn ngang KHÔNG hiện thanh cuộn (thanh tab, chip trạng thái) — đặt cuối file để thắng quy tắc 'thanh cuộn luôn hiện' ở trên */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; height: 0; width: 0; }
+
+/* Trang có bảng tự vừa màn hình (RndShell gắn cờ ở các trang bảng R&D) → không hiện thanh cuộn ngoài cùng */
+@media (min-height: 640px) { html[data-fit] { overflow-y: hidden; } }   /* màn hình quá thấp thì cho trang cuộn lại để không mất phần dưới */
+
+/* Chú thích nhanh (FastTip): hiện mờ dần + trượt nhẹ từ 3px, rất ngắn để cảm giác tức thì */
+.fast-tip { animation: fast-tip-in .12s ease-out; }
+@keyframes fast-tip-in { from { opacity: 0; margin-top: 3px; } to { opacity: 1; margin-top: 0; } }

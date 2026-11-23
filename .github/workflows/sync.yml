@@ -1,0 +1,34 @@
+# Kích hoạt đồng bộ 12 giờ 1 lần: 06:07 và 18:07 giờ VN (23:07 và 11:07 UTC). Giảm tải CPU (trước đây mỗi 3 giờ). Không còn Vercel cron. Endpoint trả lời 202 ngay, xử lý theo lô và TỰ NỐI các lô sau
+# cho tới hết kênh (200 kênh ≈ 2 lô). Mỗi lần chạy của workflow chỉ vài giây → rất ít phút Actions.
+# Cần 2 secret trong GitHub repo (Settings → Secrets and variables → Actions):
+#   APP_URL      vd https://ncptsp.vercel.app   (không có dấu / ở cuối)
+#   CRON_SECRET  giống biến CRON_SECRET đặt trên Vercel
+name: sync
+on:
+  schedule:
+    - cron: "7 11,23 * * *"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Chạy cả phần nặng (số bán, hashtag, đánh giá) và đồng bộ lại mọi kênh"
+        type: boolean
+        default: false
+concurrency:
+  group: sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Gọi /api/cron/sync
+        env:
+          APP_URL: ${{ secrets.APP_URL || 'https://ncptsp.vercel.app' }}   # thiếu secret APP_URL thì dùng địa chỉ mặc định (không phải bí mật)
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          FULL: ${{ inputs.full && '1' || '0' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then echo "Thiếu secret CRON_SECRET: vào repo → Settings → Secrets and variables → Actions → New repository secret, đặt giống biến CRON_SECRET trên Vercel"; exit 1; fi
+          code=$(curl -sS -m 60 -o out.json -w "%{http_code}" -H "Authorization: Bearer ${CRON_SECRET}" "${APP_URL}/api/cron/sync?full=${FULL}")
+          head -c 2000 out.json; echo
+          test "$code" = "202" || test "$code" = "200"

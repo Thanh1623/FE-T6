@@ -1,0 +1,30 @@
+# "CHỐT" làm mới bảng tổng hợp SPU sau đồng bộ. Gọi /api/cron/spu-summary?ifchanged=1: app tự kiểm tra, CHỈ làm mới khi bảng tổng hợp cũ hơn dữ liệu nguồn.
+# Đồng bộ chạy trọn vẹn thì tự nó đã làm mới → lần gọi này trả { skipped } (không tốn CPU database). Đồng bộ bị cắt giữa chừng (hết thời gian) thì lệnh làm mới ở cuối
+# không bao giờ chạy — đây là lưới an toàn (21/11/2026: mã mới L0051 hiện 0 view hơn 6 giờ vì lý do này).
+# Lịch: 28 phút sau sync (06:07 và 18:07 giờ VN) và 25 phút sau videos (00:30 giờ VN). Một lần chạy chỉ vài giây → rất ít phút Actions.
+# Dùng chung 2 secret với workflow sync: APP_URL, CRON_SECRET.
+name: summary
+on:
+  schedule:
+    - cron: "35 23 * * *"   # 06:35 giờ VN (sau sync 06:07)
+    - cron: "35 11 * * *"   # 18:35 giờ VN (sau sync 18:07)
+    - cron: "55 17 * * *"   # 00:55 giờ VN (sau videos 00:30)
+  workflow_dispatch:
+concurrency:
+  group: summary
+  cancel-in-progress: false
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Gọi /api/cron/spu-summary?ifchanged=1
+        env:
+          APP_URL: ${{ secrets.APP_URL || 'https://ncptsp.vercel.app' }}   # thiếu secret APP_URL thì dùng địa chỉ mặc định (không phải bí mật)
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then echo "Thiếu secret CRON_SECRET: vào repo → Settings → Secrets and variables → Actions → New repository secret, đặt giống biến CRON_SECRET trên Vercel"; exit 1; fi
+          code=$(curl -sS -m 60 -o out.json -w "%{http_code}" -H "Authorization: Bearer ${CRON_SECRET}" "${APP_URL}/api/cron/spu-summary?ifchanged=1")
+          head -c 2000 out.json; echo
+          test "$code" = "202" || test "$code" = "200"

@@ -1,0 +1,28 @@
+# Mỗi ngày đồng bộ video từ API thống kê video: đọc toàn bộ, chỉ ghi video mới / đột biến (xem src/lib/sync/api-videos.ts).
+# API quét TOÀN BỘ kênh mỗi ngày một lần lúc 17:00–17:05 UTC (00:00–00:05 giờ VN) — đo 21/11/2026: 103 kênh Facebook cập nhật trong 17:00–17:03 UTC.
+# Chạy lúc 17:30 UTC (00:30 giờ VN) để lấy số liệu vừa quét (trước đây 04:00 UTC → số liệu cũ hơn ~11 giờ). GitHub có thể trễ vài phút đến vài chục phút; vẫn nằm sau lần quét của API.
+# Page Facebook có trong API và API còn cập nhật chỉ lấy video từ API (không đồng bộ trực tiếp Meta) nên độ mới của chúng phụ thuộc đúng lịch này.
+# Dùng chung 2 secret với workflow sync: APP_URL, CRON_SECRET.
+name: videos
+on:
+  schedule:
+    - cron: "30 17 * * *"   # 17:30 UTC = 00:30 giờ VN
+  workflow_dispatch:
+concurrency:
+  group: videos
+  cancel-in-progress: false
+jobs:
+  videos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Gọi /api/cron/videos
+        env:
+          APP_URL: ${{ secrets.APP_URL || 'https://ncptsp.vercel.app' }}   # thiếu secret APP_URL thì dùng địa chỉ mặc định (không phải bí mật)
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then echo "Thiếu secret CRON_SECRET: vào repo → Settings → Secrets and variables → Actions → New repository secret, đặt giống biến CRON_SECRET trên Vercel"; exit 1; fi
+          code=$(curl -sS -m 60 -o out.json -w "%{http_code}" -H "Authorization: Bearer ${CRON_SECRET}" "${APP_URL}/api/cron/videos")
+          head -c 2000 out.json; echo
+          test "$code" = "202" || test "$code" = "200"
