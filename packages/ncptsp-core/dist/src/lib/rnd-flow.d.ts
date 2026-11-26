@@ -1,0 +1,20 @@
+import "server-only";
+import { type CurrentUser } from "@/lib/session";
+import { type Stage } from "@/lib/pipeline-constants";
+export declare function logEvent(productId: string, actorId: string | null, action: string, changes?: Record<string, [unknown, unknown]> | null): Promise<void>;
+export declare function logStatus(entity: string, entityId: string | number, value: string, actorId: string | null): Promise<void>;
+export declare function revalidateRnd(productId?: string): void;
+export declare function reachStage(productId: string, to: Stage, actorId: string | null, note?: string): Promise<boolean>;
+export declare function afterApproved(productId: string, actorId: string): Promise<void>;
+export declare function afterDesignPassed(productId: string, actorId: string): Promise<void>;
+export declare function afterOrderStatus(orderId: number, status: string, actorId: string): Promise<void>;
+export declare function afterMediaChange(productId: string, actorId: string): Promise<void>;
+export declare function requestCraftVideo(productId: string, actorId: string): Promise<boolean>;
+export declare function decideResult(productId: string, user: CurrentUser, input: {
+    result: "win" | "win_traffic" | "win_sp" | "fail";
+    note: string | null;
+    winQty?: number | null;
+    handoff?: boolean;
+    handoffNote?: string | null;
+    toCommercial?: boolean;
+}): Promise<string | null>;

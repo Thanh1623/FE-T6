@@ -1,0 +1,77 @@
+import "server-only";
+import type { KpiRule, SalesScope, TestResult } from "@/lib/kpi-constants";
+export type Goal = {
+    code: string;
+    name: string;
+    description: string | null;
+    win_result: "win" | "win_traffic";
+    sort_order: number;
+    is_active: boolean;
+};
+export type Template = {
+    id: string;
+    name: string;
+    goal_code: string;
+    line: string | null;
+    campaign: string | null;
+    rules: KpiRule[];
+    match: "all" | "any";
+    min_days: number;
+    min_views: number;
+    duration_days: number;
+    is_default: boolean;
+    is_active: boolean;
+    updated_at: string;
+};
+export type Session = {
+    id: string;
+    product_id: string;
+    goal_code: string;
+    template_id: string | null;
+    campaign: string | null;
+    start_date: string;
+    end_date: string;
+    sales_scope: SalesScope;
+    page_ids: string[];
+    channels: string[];
+    rules: KpiRule[];
+    match: "all" | "any";
+    min_days: number;
+    min_views: number;
+    status: "running" | "ended";
+    ended_at: string | null;
+    note: string | null;
+    created_at: string;
+    creator?: {
+        full_name: string;
+    } | null;
+    result: TestResult | null;
+};
+export declare function listGoals(includeInactive?: boolean): Promise<Goal[]>;
+export declare function listTemplates(includeInactive?: boolean): Promise<Template[]>;
+export { suggestTemplate } from "@/lib/kpi-constants";
+export declare function listSessions(productId: string): Promise<{
+    creator: {
+        full_name: string;
+    };
+    id: string;
+    product_id: string;
+    goal_code: string;
+    template_id: string | null;
+    campaign: string | null;
+    start_date: string;
+    end_date: string;
+    sales_scope: SalesScope;
+    page_ids: string[];
+    channels: string[];
+    rules: KpiRule[];
+    match: "all" | "any";
+    min_days: number;
+    min_views: number;
+    status: "running" | "ended";
+    ended_at: string | null;
+    note: string | null;
+    created_at: string;
+    result: TestResult | null;
+}[]>;
+export declare function latestSessions(productIds: string[]): Promise<Record<string, Session>>;

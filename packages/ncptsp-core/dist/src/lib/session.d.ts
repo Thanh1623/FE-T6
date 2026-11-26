@@ -1,0 +1,21 @@
+import "server-only";
+export type { Role } from "@/lib/roles";
+import { type Role } from "@/lib/roles";
+export { ROLE_LABELS, roleLabel } from "@/lib/roles";
+export type CurrentUser = {
+    id: string;
+    email: string;
+    full_name: string;
+    role: Role;
+    team_id: string | null;
+    is_team_lead: boolean;
+    team2_id: string | null;
+};
+export declare const getCurrentUser: () => Promise<CurrentUser | null>;
+export declare function requireUser(roles?: Role[]): Promise<CurrentUser>;
+export declare function requireActionUser(roles?: Role[]): Promise<CurrentUser>;
+export declare const canSeeProfit: (u: CurrentUser) => boolean;
+export declare const inTeam: (u: Pick<CurrentUser, "team_id" | "team2_id">, teamId: string | null) => boolean;
+export declare const canApprove: (u: CurrentUser, productTeamId: string | null) => boolean;
+export declare const isRndEditor: (u: CurrentUser) => boolean;
+export declare function profileNames(ids: (string | null | undefined)[]): Promise<Map<string, string>>;

@@ -1,0 +1,26 @@
+{
+  "name": "@ncptsp/core",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/sync-bundle.cjs",
+  "exports": {
+    ".": "./dist/sync-bundle.cjs",
+    "./sync": "./dist/sync-bundle.cjs",
+    "./sync/auth": "./dist/sync-auth.cjs"
+  },
+  "scripts": {
+    "build": "node build.mjs && node build-auth.mjs",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "cloudinary": "^2.11.0",
+    "server-only": "^0.0.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.3"
+  }
+}

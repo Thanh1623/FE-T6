@@ -1,0 +1,1 @@
+export declare const TREND_SERIES: readonly [readonly ["win", "WIN", "var(--res-win)"], readonly ["win_traffic", "WIN TRAFFIC", "var(--res-wt)"], readonly ["testing", "Đang test", "var(--res-testing)"], readonly ["fail", "FAIL", "var(--res-fail)"]];

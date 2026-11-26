@@ -9,7 +9,8 @@
     "lint": "eslint",
     "fb:check": "node --env-file=.env.local scripts/fb-check.mjs",
     "create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
-    "test": "node scripts/test-rules.mts && node scripts/test-paging.mts"
+    "test": "node scripts/test-rules.mts && node scripts/test-paging.mts",
+    "build:core": "node packages/ncptsp-core/build.mjs && node packages/ncptsp-core/build-auth.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

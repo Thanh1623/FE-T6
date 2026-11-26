@@ -1,0 +1,52 @@
+export type TeamCell = {
+    team: string;
+    videos: number;
+    views: number;
+    sold: number;
+    verdict: Verdict;
+};
+export type Verdict = "pushing" | "weak" | "idle" | "sold_no_video";
+export declare const VERDICT: Record<Verdict, string>;
+export declare const UNASSIGNED = "Ch\u01B0a g\u00E1n team";
+export type Cls = "hot" | "normal" | "slow" | "bad";
+export type Priority = "high" | "mid" | "low";
+export type PushRow = {
+    code: string;
+    name: string;
+    stock: number;
+    incoming: number;
+    age: number | null;
+    sold30: number | null;
+    cls: Cls;
+    videos: number;
+    views: number;
+    sold: number;
+    teamVideos: number;
+    pushing: string[];
+    idle: string[];
+    teams: TeamCell[];
+    group: "unpushed" | "ineffective" | "dead" | "healthy";
+    priority: Priority;
+    why: string;
+};
+export type PushData = {
+    rows: PushRow[];
+    teams: string[];
+    refreshedAt: string | null;
+};
+export type PushRequest = {
+    id: number;
+    code: string;
+    name: string;
+    team: string;
+    priority: Priority;
+    target: number;
+    due: string | null;
+    note: string | null;
+    status: "todo" | "doing" | "done";
+    by: string | null;
+    created: string;
+    started: string | null;
+    done_at: string | null;
+    done_videos: number;
+};

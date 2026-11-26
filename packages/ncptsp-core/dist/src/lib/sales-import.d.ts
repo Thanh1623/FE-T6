@@ -1,0 +1,58 @@
+import "server-only";
+export type SaleLine = {
+    orderId: string;
+    sku: string;
+    seq: number;
+    code: string;
+    orderedAt: string;
+    qty: number;
+    price: number;
+    status: string | null;
+    source: string | null;
+    branch: string | null;
+    tags: string | null;
+    staff: string | null;
+    returnStatus: string | null;
+    refundStatus: string | null;
+    shipStatus: string | null;
+    deliveredAt: string | null;
+};
+export type ParsedSales = {
+    lines: SaleLine[];
+    skippedInvalid: number;
+    headers: string[];
+    missing: string[];
+    orders: number;
+    codes: number;
+    from: string | null;
+    to: string | null;
+    qty: number;
+    cancelledLines: number;
+    giftLines: number;
+    otherQty: number;
+    otherCodes: number;
+    refundLines: number;
+};
+export declare const SALES_ALIASES: {
+    readonly orderId: readonly ["ma don hang", "ma don", "so don hang"];
+    readonly date: readonly ["ngay dat hang", "ngay dat", "ngay tao don", "ngay tao"];
+    readonly branch: readonly ["chi nhanh", "kho", "kho xuat"];
+    readonly source: readonly ["nguon", "kenh ban", "kenh"];
+    readonly status: readonly ["trang thai don hang", "trang thai"];
+    readonly sku: readonly ["ma sku", "sku", "ma san pham", "ma hang"];
+    readonly price: readonly ["gia san pham", "don gia", "gia ban", "gia"];
+    readonly qty: readonly ["so luong san pham", "so luong", "sl"];
+    readonly tags: readonly ["tags", "tag"];
+    readonly staff: readonly ["nhan vien phu trach", "nhan vien", "nguoi phu trach"];
+    readonly ship: readonly ["trang thai giao hang", "trang thai van chuyen"];
+    readonly ret: readonly ["trang thai tra hang"];
+    readonly refund: readonly ["trang thai hoan tra"];
+    readonly delivered: readonly ["ngay giao hang thanh cong", "ngay giao thanh cong", "ngay giao hang", "ngay giao"];
+};
+export declare const SALES_LABELS: {
+    readonly orderId: "Mã đơn hàng";
+    readonly date: "Ngày đặt hàng";
+    readonly sku: "Mã SKU";
+    readonly qty: "Số lượng sản phẩm";
+};
+export declare function parseSales(buf: Buffer): ParsedSales;
