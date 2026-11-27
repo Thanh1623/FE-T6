@@ -6,10 +6,12 @@
   "exports": {
     ".": "./dist/sync-bundle.cjs",
     "./sync": "./dist/sync-bundle.cjs",
-    "./sync/auth": "./dist/sync-auth.cjs"
+    "./sync/auth": "./dist/sync-auth.cjs",
+    "./spu-summary": "./dist/spu-summary-bundle.cjs",
+    "./videos": "./dist/videos-bundle.cjs"
   },
   "scripts": {
-    "build": "node build.mjs && node build-auth.mjs",
+    "build": "node build.mjs && node build-auth.mjs && node build-spu-summary.mjs && node build-videos.mjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {

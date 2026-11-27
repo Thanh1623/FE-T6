@@ -17,7 +17,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/lib/sync/auth.ts
+// ../NCPTSP/ncptsp/src/lib/sync/auth.ts
 var auth_exports = {};
 __export(auth_exports, {
   isAuthorized: () => isAuthorized

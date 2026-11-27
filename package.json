@@ -10,7 +10,7 @@
     "fb:check": "node --env-file=.env.local scripts/fb-check.mjs",
     "create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
     "test": "node scripts/test-rules.mts && node scripts/test-paging.mts",
-    "build:core": "node packages/ncptsp-core/build.mjs && node packages/ncptsp-core/build-auth.mjs"
+    "build:core": "node packages/ncptsp-core/build.mjs && node packages/ncptsp-core/build-auth.mjs && node packages/ncptsp-core/build-spu-summary.mjs && node packages/ncptsp-core/build-videos.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
