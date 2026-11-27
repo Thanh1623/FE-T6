@@ -10,3 +10,8 @@ export function isAuthorized(req: Request) {
   const want = Buffer.from(`Bearer ${secret}`);
   return got.length === want.length && timingSafeEqual(got, want);
 }
+
+/** Phase 3: cron chạy trên Nest. Bật CRON_ON_WORKER=1 trên Vercel sau khi GitHub đã trỏ WORKER_URL. */
+export function cronOnWorker(): boolean {
+  return process.env.CRON_ON_WORKER === "1";
+}

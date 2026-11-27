@@ -26,5 +26,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // privacy / terms: trang công khai (TikTok / Meta yêu cầu địa chỉ Điều khoản + Chính sách bảo mật mở được khi chưa đăng nhập)
-  matcher: ["/((?!api/cron|api/setup|privacy|terms|tiktok.*\.txt|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/cron|api/internal|api/setup|privacy|terms|tiktok.*\.txt|_next/static|_next/image|favicon.ico).*)"],
 };

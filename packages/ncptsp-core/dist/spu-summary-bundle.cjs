@@ -20,21 +20,21 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/server-only.ts
+// packages/ncptsp-core/shim/server-only.ts
 var init_server_only = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/server-only.ts"() {
+  "packages/ncptsp-core/shim/server-only.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-server.ts
+// packages/ncptsp-core/shim/next-server.ts
 var init_next_server = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-server.ts"() {
+  "packages/ncptsp-core/shim/next-server.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/paging.ts
+// src/lib/paging.ts
 async function withRetry(run) {
   let res = await run();
   for (let n = 1; n <= 3 && res.error && isTimeout(res.error); n++) {
@@ -79,7 +79,7 @@ async function fetchAllByKey(build, keyOf, fallback) {
 }
 var PAGE_SIZE, PARALLEL, isTimeout, PAGE;
 var init_paging = __esm({
-  "../NCPTSP/ncptsp/src/lib/paging.ts"() {
+  "src/lib/paging.ts"() {
     "use strict";
     PAGE_SIZE = 1e3;
     PARALLEL = 6;
@@ -88,7 +88,7 @@ var init_paging = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/supabase/admin.ts
+// src/lib/supabase/admin.ts
 function supabaseAdmin() {
   admin ??= (0, import_supabase_js.createClient)(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
     auth: { persistSession: false }
@@ -102,7 +102,7 @@ function supabaseOrders() {
 }
 var import_supabase_js, admin, sb;
 var init_admin = __esm({
-  "../NCPTSP/ncptsp/src/lib/supabase/admin.ts"() {
+  "src/lib/supabase/admin.ts"() {
     "use strict";
     init_server_only();
     import_supabase_js = require("@supabase/supabase-js");
@@ -117,7 +117,7 @@ var init_admin = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/date-range.ts
+// src/lib/date-range.ts
 function resolveRange(range, today) {
   const monthStart = `${today.slice(0, 8)}01`;
   if (range === "today") return { from: today, to: today };
@@ -132,26 +132,35 @@ function resolveRange(range, today) {
 }
 var DAY_MS, shiftDay;
 var init_date_range = __esm({
-  "../NCPTSP/ncptsp/src/lib/date-range.ts"() {
+  "src/lib/date-range.ts"() {
     "use strict";
     DAY_MS = 864e5;
     shiftDay = (d, n) => new Date(Date.parse(d) + n * DAY_MS).toISOString().slice(0, 10);
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-cache.ts
+// packages/ncptsp-core/shim/next-cache.ts
 function unstable_cache(fn, _keyParts, _opts) {
   return fn;
 }
-function revalidateTag(_tag, _profile) {
+function revalidateTag(tag, profile) {
+  const base = process.env.APP_URL?.replace(/\/$/, "");
+  const secret = process.env.CRON_SECRET;
+  if (!base || !secret) return;
+  void fetch(`${base}/api/internal/revalidate`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${secret}`, "content-type": "application/json" },
+    body: JSON.stringify({ tags: [tag], profile: profile ?? { expire: 0 } }),
+    signal: AbortSignal.timeout(1e4)
+  }).catch((e) => console.error("revalidate webhook l\u1ED7i", tag, e));
 }
 var init_next_cache = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-cache.ts"() {
+  "packages/ncptsp-core/shim/next-cache.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/cache-tags.ts
+// src/lib/cache-tags.ts
 function bustSoft(...tags) {
   for (const t of tags) {
     try {
@@ -162,7 +171,7 @@ function bustSoft(...tags) {
 }
 var TAG;
 var init_cache_tags = __esm({
-  "../NCPTSP/ncptsp/src/lib/cache-tags.ts"() {
+  "src/lib/cache-tags.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -187,17 +196,17 @@ var init_cache_tags = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/tiktok/name.ts
+// src/lib/tiktok/name.ts
 var normTikTokName, TT_NAME_PREFIX;
 var init_name = __esm({
-  "../NCPTSP/ncptsp/src/lib/tiktok/name.ts"() {
+  "src/lib/tiktok/name.ts"() {
     "use strict";
     normTikTokName = (s) => s.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
     TT_NAME_PREFIX = "ttn:";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/daily-sales.ts
+// src/lib/daily-sales.ts
 function pageOfTags(tags) {
   if (!tags) return "";
   const parts = tags.split(",").map((t) => t.trim());
@@ -322,7 +331,7 @@ async function loadDailySalesDb(q) {
 }
 var DAY, vnDay, addDays, CHANNEL_OF_SOURCE, channelOfSource, winCache, chunks, salesCached;
 var init_daily_sales = __esm({
-  "../NCPTSP/ncptsp/src/lib/daily-sales.ts"() {
+  "src/lib/daily-sales.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -364,7 +373,7 @@ var init_daily_sales = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/format.ts
+// src/lib/format.ts
 function fmtCompact(n) {
   const f = (v) => v < 10 ? v.toLocaleString("vi-VN", { maximumFractionDigits: 1 }) : Math.round(v).toLocaleString("vi-VN");
   const a = Math.abs(n);
@@ -374,13 +383,13 @@ function fmtCompact(n) {
 }
 var fmtInt;
 var init_format = __esm({
-  "../NCPTSP/ncptsp/src/lib/format.ts"() {
+  "src/lib/format.ts"() {
     "use strict";
     fmtInt = (n) => Math.round(n).toLocaleString("vi-VN");
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/data.ts
+// src/lib/data.ts
 var data_exports = {};
 __export(data_exports, {
   CHANNELS: () => CHANNELS,
@@ -544,7 +553,7 @@ function fmtMoneyShort(n) {
 }
 var DAY_MS2, RANGE_PRESETS, CHANNELS, one, isDate, limitByTeams, getAccounts, OVERVIEW_METRICS, getPostsPageCached, catalogCache, getLatestSyncLogs, fmtMoney, fmtDate, fmtDateTime;
 var init_data = __esm({
-  "../NCPTSP/ncptsp/src/lib/data.ts"() {
+  "src/lib/data.ts"() {
     "use strict";
     init_server_only();
     init_date_range();
@@ -600,7 +609,7 @@ var init_data = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/db-gate.ts
+// src/lib/db-gate.ts
 async function heavyRpc(fn, retries = 1, waitMs = 1500) {
   let res = await heavyQuery(async () => await fn());
   for (let a = 0; a < retries && isTimeout2(res.error); a++) {
@@ -622,7 +631,7 @@ async function heavyQuery(fn) {
 }
 var MAX, running, waiting, isTimeout2;
 var init_db_gate = __esm({
-  "../NCPTSP/ncptsp/src/lib/db-gate.ts"() {
+  "src/lib/db-gate.ts"() {
     "use strict";
     MAX = 3;
     running = 0;
@@ -631,7 +640,7 @@ var init_db_gate = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sku-overrides.ts
+// src/lib/sku-overrides.ts
 async function loadSkuOverrides() {
   try {
     return new Map((await cached()).map((r) => [r.sku.toUpperCase(), r.spu_code]));
@@ -641,7 +650,7 @@ async function loadSkuOverrides() {
 }
 var cached;
 var init_sku_overrides = __esm({
-  "../NCPTSP/ncptsp/src/lib/sku-overrides.ts"() {
+  "src/lib/sku-overrides.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -655,7 +664,7 @@ var init_sku_overrides = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-alias.ts
+// src/lib/spu-alias.ts
 async function loadSpuAliases() {
   try {
     return new Map((await cached2()).map((r) => [r.old_code.toUpperCase(), r.new_code.toUpperCase()]));
@@ -677,7 +686,7 @@ function canonPosts(aliases, posts) {
 }
 var cached2, canonOf;
 var init_spu_alias = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-alias.ts"() {
+  "src/lib/spu-alias.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -692,7 +701,7 @@ var init_spu_alias = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/staff-teams.ts
+// src/lib/staff-teams.ts
 function buildStaffMatcher(profiles) {
   const ps = profiles.map((p) => ({ ...p, tk: nameTokens(p.name), code: p.teamCode ?? p.team, kd: shiftOf(p.name) }));
   const cache2 = /* @__PURE__ */ new Map();
@@ -755,7 +764,7 @@ async function loadStaffLookup() {
 }
 var TEAM_ALIAS, SUFFIX_TEAM, NOISE, fold, words, nameTokens, hintOf, shiftOf, cached3;
 var init_staff_teams = __esm({
-  "../NCPTSP/ncptsp/src/lib/staff-teams.ts"() {
+  "src/lib/staff-teams.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -771,17 +780,17 @@ var init_staff_teams = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/tags.ts
+// src/lib/tags.ts
 var init_tags = __esm({
-  "../NCPTSP/ncptsp/src/lib/tags.ts"() {
+  "src/lib/tags.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/roles.ts
+// src/lib/roles.ts
 var ROLE_LABELS, ROLES;
 var init_roles = __esm({
-  "../NCPTSP/ncptsp/src/lib/roles.ts"() {
+  "src/lib/roles.ts"() {
     "use strict";
     ROLE_LABELS = {
       admin: "Qu\u1EA3n l\xFD",
@@ -793,15 +802,15 @@ var init_roles = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/session-worker.ts
+// packages/ncptsp-core/shim/session-worker.ts
 var init_session_worker = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/session-worker.ts"() {
+  "packages/ncptsp-core/shim/session-worker.ts"() {
     "use strict";
     init_roles();
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-code.ts
+// src/lib/spu-code.ts
 function isNonProduct(name, code) {
   if (/TRUNGGIAN/i.test(code)) return true;
   const t = fold2(String(name ?? "")).replace(/^(\s*[\(\[][^\)\]]*[\)\]])+\s*/, "").trim();
@@ -819,7 +828,7 @@ function groupOfProduct(name, code) {
 }
 var spuOf, fold2, KEYWORDS, PREFIX_GROUP, NON_PRODUCT_NAME;
 var init_spu_code = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-code.ts"() {
+  "src/lib/spu-code.ts"() {
     "use strict";
     spuOf = (sku) => String(sku ?? "").replace(/^#/, "").trim().toUpperCase().split("-")[0].trim();
     fold2 = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
@@ -853,9 +862,9 @@ var init_spu_code = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/code-links.ts
+// src/lib/code-links.ts
 var init_code_links = __esm({
-  "../NCPTSP/ncptsp/src/lib/code-links.ts"() {
+  "src/lib/code-links.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -866,10 +875,10 @@ var init_code_links = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-options.ts
+// src/lib/rnd-options.ts
 var CYCLE, o, DEFAULT_OPTIONS;
 var init_rnd_options = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-options.ts"() {
+  "src/lib/rnd-options.ts"() {
     "use strict";
     CYCLE = [1, 13, 3, 15, 9, 16, 4, 12, 7, 14, 2, 17];
     o = (values) => values.map((value, i) => ({ value, color: CYCLE[i % CYCLE.length] }));
@@ -896,10 +905,10 @@ var init_rnd_options = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/pipeline-constants.ts
+// src/lib/pipeline-constants.ts
 var PRODUCT_GROUPS, APPROVAL_FROM_LABEL, APPROVAL_TO_LABEL, GROUP_OPTS;
 var init_pipeline_constants = __esm({
-  "../NCPTSP/ncptsp/src/lib/pipeline-constants.ts"() {
+  "src/lib/pipeline-constants.ts"() {
     "use strict";
     PRODUCT_GROUPS = { gmv: "GMV", traffic: "Traffic", profit: "Profit", return: "Return" };
     APPROVAL_FROM_LABEL = { "B\u1EA3n nh\xE1p": "draft", "Ch\u1EDD duy\u1EC7t": "pending", "\u0110\xE3 duy\u1EC7t": "approved", "T\u1EEB ch\u1ED1i": "rejected" };
@@ -908,14 +917,14 @@ var init_pipeline_constants = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/pipeline.ts
+// src/lib/pipeline.ts
 async function getTeams(activeOnly = false) {
   const all = await allTeams();
   return activeOnly ? all.filter((t) => t.is_active) : all;
 }
 var allTeams, getAllProfiles, rndOptionsRaw;
 var init_pipeline = __esm({
-  "../NCPTSP/ncptsp/src/lib/pipeline.ts"() {
+  "src/lib/pipeline.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -943,7 +952,7 @@ var init_pipeline = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-data.ts
+// src/lib/spu-data.ts
 async function loadSpuMeta() {
   await loadSpuRows();
   return cache.meta;
@@ -1289,7 +1298,7 @@ async function loadSold30(since, today, teamOfLine, teamOfChannel, canon2 = (c) 
 }
 var DAY2, vnDay2, dayDiff, addDays3, PLATFORM, ADS_TEAM, ADS_TAGS, isAdsTags, VIDEO_DAYS, cache, loadSpuRowsLight, videoChunk, recentVideos, olderVideos, skuSummaryCached, IMG_BASE, ownImagesCached, ownNamesCached, excludedCached, isCraftName, receiptsCached, CATALOG_CHUNK, CATALOG_CHUNKS, catalogChunk, stockCached, orderGroupsCached;
 var init_spu_data = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-data.ts"() {
+  "src/lib/spu-data.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -1372,7 +1381,7 @@ var init_spu_data = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/video-daily.ts
+// src/lib/video-daily.ts
 async function refreshVideoDaily(opts = {}) {
   const t0 = Date.now();
   try {
@@ -1411,7 +1420,7 @@ async function checkVideoDaily() {
 }
 var missing, dayStr, addDay;
 var init_video_daily = __esm({
-  "../NCPTSP/ncptsp/src/lib/video-daily.ts"() {
+  "src/lib/video-daily.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1421,7 +1430,7 @@ var init_video_daily = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/team-lines.ts
+// src/lib/team-lines.ts
 async function refreshTeamLines(force = false) {
   try {
     const db = sb.sales();
@@ -1453,7 +1462,7 @@ async function refreshTeamLines(force = false) {
 }
 var isTimeout3;
 var init_team_lines = __esm({
-  "../NCPTSP/ncptsp/src/lib/team-lines.ts"() {
+  "src/lib/team-lines.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1461,7 +1470,7 @@ var init_team_lines = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-summary-build.ts
+// src/lib/spu-summary-build.ts
 function buildSummaryTables(rows, today, runId) {
   const summary = rows.map((r) => ({
     run_id: runId,
@@ -1509,7 +1518,7 @@ function buildSummaryTables(rows, today, runId) {
 }
 var DAY3, addDays4, normSearch;
 var init_spu_summary_build = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-summary-build.ts"() {
+  "src/lib/spu-summary-build.ts"() {
     "use strict";
     DAY3 = 864e5;
     addDays4 = (d, n) => new Date(Date.parse(d) + n * DAY3).toISOString().slice(0, 10);
@@ -1517,7 +1526,7 @@ var init_spu_summary_build = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/system-log.ts
+// src/lib/system-log.ts
 async function logSystem(e) {
   try {
     const { error } = await sb.core().from("system_logs").insert({
@@ -1539,7 +1548,7 @@ async function logSystem(e) {
   }
 }
 var init_system_log = __esm({
-  "../NCPTSP/ncptsp/src/lib/system-log.ts"() {
+  "src/lib/system-log.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1547,7 +1556,7 @@ var init_system_log = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/kpi-constants.ts
+// src/lib/kpi-constants.ts
 function parseRules(raw) {
   if (!Array.isArray(raw) || raw.length === 0) return "C\u1EA7n \xEDt nh\u1EA5t 1 \u0111i\u1EC1u ki\u1EC7n KPI";
   const out = [];
@@ -1562,7 +1571,7 @@ function parseRules(raw) {
 }
 var KPI_METRICS, KPI_OPS;
 var init_kpi_constants = __esm({
-  "../NCPTSP/ncptsp/src/lib/kpi-constants.ts"() {
+  "src/lib/kpi-constants.ts"() {
     "use strict";
     KPI_METRICS = {
       views: { label: "L\u01B0\u1EE3t xem", unit: "", group: "traffic", hint: "T\u1ED5ng l\u01B0\u1EE3t xem c\xE1c b\xE0i g\u1EAFn m\xE3" },
@@ -1578,7 +1587,7 @@ var init_kpi_constants = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-tracking.ts
+// src/lib/spu-tracking.ts
 function saleFlags(stock, sl, R) {
   const inStock = stock > 0;
   return {
@@ -1620,7 +1629,7 @@ function viewOf(row, opt) {
 }
 var DEFAULT_SPU_RULES, STATUS_FILTERS;
 var init_spu_tracking = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-tracking.ts"() {
+  "src/lib/spu-tracking.ts"() {
     "use strict";
     DEFAULT_SPU_RULES = {
       // Phân loại bán THEO SỐ LƯỢNG BÁN 30 NGÀY GẦN NHẤT (SL) (kể cả SPU hết hàng vẫn bán; Tồn xấu chỉ tính SPU còn hàng):
@@ -1660,7 +1669,7 @@ var init_spu_tracking = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-rules.ts
+// src/lib/spu-rules.ts
 var spu_rules_exports = {};
 __export(spu_rules_exports, {
   SPU_RULES_KEY: () => SPU_RULES_KEY,
@@ -1704,7 +1713,7 @@ async function loadVideoWinRules() {
 }
 var SPU_RULES_KEY, num;
 var init_spu_rules = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-rules.ts"() {
+  "src/lib/spu-rules.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1715,7 +1724,7 @@ var init_spu_rules = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-winflags.ts
+// src/lib/spu-winflags.ts
 var spu_winflags_exports = {};
 __export(spu_winflags_exports, {
   EMPTY_WIN: () => EMPTY_WIN,
@@ -1887,7 +1896,7 @@ async function loadLaunchWinFlagsByMarket(a) {
 }
 var DAY4, addDays5, vnDay3, cached4, EMPTY_WIN, rollingCached, idsOf, union;
 var init_spu_winflags = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-winflags.ts"() {
+  "src/lib/spu-winflags.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -1911,7 +1920,7 @@ var init_spu_winflags = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/channel-market.ts
+// src/lib/channel-market.ts
 var channel_market_exports = {};
 __export(channel_market_exports, {
   DEFAULT_MARKET: () => DEFAULT_MARKET,
@@ -1929,7 +1938,7 @@ async function loadChannelMarkets() {
 }
 var DEFAULT_MARKET, MARKET_OPTIONS, parseMarket, marketForSql, cached5;
 var init_channel_market = __esm({
-  "../NCPTSP/ncptsp/src/lib/channel-market.ts"() {
+  "src/lib/channel-market.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -1947,16 +1956,16 @@ var init_channel_market = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/video-win-data.ts
+// src/lib/video-win-data.ts
 var init_video_win_data = __esm({
-  "../NCPTSP/ncptsp/src/lib/video-win-data.ts"() {
+  "src/lib/video-win-data.ts"() {
     "use strict";
     init_server_only();
     init_admin();
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-query.ts
+// src/lib/spu-query.ts
 function queryLegacy(allRows, q) {
   const { days, endAge, group, words: words2, teams, rules: R, win } = q;
   const warehouses = [...new Set(allRows.flatMap((r) => Object.keys(r.stockBy)))].sort();
@@ -2045,7 +2054,7 @@ function viewFromSql(r, q) {
 }
 var cmpStr, spuReadMode;
 var init_spu_query = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-query.ts"() {
+  "src/lib/spu-query.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -2061,7 +2070,7 @@ var init_spu_query = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-videos.ts
+// src/lib/spu-videos.ts
 function spuVideos(row, opt, today) {
   const end = opt.endAge ?? 0;
   return row.vids.filter((v) => v.age >= end && v.age < end + opt.days).map((v) => ({
@@ -2078,12 +2087,12 @@ function spuVideos(row, opt, today) {
   })).sort((a, b) => b.date.localeCompare(a.date));
 }
 var init_spu_videos = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-videos.ts"() {
+  "src/lib/spu-videos.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-dash.ts
+// src/lib/spu-dash.ts
 var spu_dash_exports = {};
 __export(spu_dash_exports, {
   DASH_GROUPS: () => DASH_GROUPS,
@@ -2165,7 +2174,7 @@ async function loadDashSpu(q) {
 }
 var DASH_GROUPS, dashRpcParams, dashRpc;
 var init_spu_dash = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-dash.ts"() {
+  "src/lib/spu-dash.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -2198,7 +2207,7 @@ var init_spu_dash = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-summary.ts
+// src/lib/spu-summary.ts
 async function refreshSpuSummary() {
   const r = await refreshSpuSummaryRun();
   await logSystem({
@@ -2357,7 +2366,7 @@ async function postsChangedSinceSummary() {
 }
 var CHUNK, MIGRATION_MSG, isMissing;
 var init_spu_summary = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-summary.ts"() {
+  "src/lib/spu-summary.ts"() {
     "use strict";
     init_server_only();
     init_next_server();
@@ -2375,7 +2384,7 @@ var init_spu_summary = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/entries/spu-summary.handlers.ts
+// packages/ncptsp-core/entries/spu-summary.handlers.ts
 var spu_summary_handlers_exports = {};
 __export(spu_summary_handlers_exports, {
   checkSpuParity: () => checkSpuParity,
@@ -2389,7 +2398,7 @@ __export(spu_summary_handlers_exports, {
 module.exports = __toCommonJS(spu_summary_handlers_exports);
 init_spu_summary();
 
-// ../NCPTSP/ncptsp/src/lib/spu-parity.ts
+// src/lib/spu-parity.ts
 init_server_only();
 init_admin();
 init_pipeline();
@@ -2479,7 +2488,7 @@ async function checkSpuParity() {
   }
 }
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/entries/spu-summary.handlers.ts
+// packages/ncptsp-core/entries/spu-summary.handlers.ts
 init_video_daily();
 init_team_lines();
 // Annotate the CommonJS export names for ESM import in node:

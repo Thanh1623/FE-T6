@@ -16,8 +16,8 @@ Công cụ nội bộ cho shop trang sức (mã mẫu dạng `D0008`, `N0123`):
 |---|---|
 | Framework | **Next.js 16.3.8** (App Router) + React 19.2, TypeScript, Tailwind 4. ⚠ `AGENTS.md`: phiên bản này có breaking change — đọc `node_modules/next/dist/docs/` trước khi sửa code Next |
 | CSDL / Auth / Storage | Supabase (Postgres 17, Auth, Storage). Truy cập DB chỉ bằng `service_role` từ server (`src/lib/supabase/admin.ts`: `sb.core()/social()/sales()/rnd()`). Đăng nhập qua `@supabase/ssr` |
-| Hosting | Vercel (`vercel.json`: region `sin1`, cron `0 23 * * *` gọi `/api/cron/sync`) |
-| Lịch đồng bộ chính | GitHub Actions `.github/workflows/sync.yml` — `7 11,23 * * *` (06:07 và 18:07 VN → đồng bộ 12 giờ 1 lần) gọi `GET /api/cron/sync` với `Bearer CRON_SECRET`; có nút chạy tay `full` |
+| Hosting | Vercel (`vercel.json`: region `sin1`, không `crons`) + Nest worker (GitHub `WORKER_URL`) |
+| Lịch đồng bộ chính | GitHub Actions `.github/workflows/sync.yml` — `7 11,23 * * *` (06:07 và 18:07 VN) gọi Nest `WORKER_URL/api/cron/sync` với `Bearer CRON_SECRET`; có nút chạy tay `full`. Next cache: `POST /api/internal/revalidate` |
 | Thư viện | recharts (biểu đồ), xlsx (import tồn kho), cloudinary (ảnh), Cloudflare Turnstile (chống bot đăng ký/đăng nhập) |
 | Proxy | `src/proxy.ts`: làm mới phiên + chuyển `/login` nếu chưa đăng nhập (trừ `/login`, `/register`, `/privacy`, `/terms`, `/api/cron`, `/api/setup`) |
 | Cache | `unstable_cache` + tag (`src/lib/cache-tags.ts`, `bust()`); hồ sơ user cache 60s |
@@ -108,12 +108,13 @@ Import Excel tồn kho → `sales.inventory_stock` (+ lịch sử `inventory_imp
 | Cloudflare Turnstile | captcha | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` |
 | Supabase | DB/Auth/Storage | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` |
 | Cron | bảo vệ endpoint | `CRON_SECRET` (`lib/sync/auth.ts`) |
-Mọi secret nằm trong `.env.local` / biến môi trường Vercel & GitHub Secrets (`APP_URL`, `CRON_SECRET`) — **không ghi vào repo**.
+Mọi secret nằm trong `.env.local` / biến môi trường Vercel, Nest & GitHub Secrets (`WORKER_URL`, `CRON_SECRET`; Nest `APP_URL` = Next) — **không ghi vào repo**.
 
 ## 6. Endpoint HTTP (`src/app/api`)
 | Route | Method | Auth | Chức năng |
 |---|---|---|---|
-| `/api/cron/sync` | GET | `Bearer CRON_SECRET` | chạy đồng bộ (mục 4.1) |
+| `/api/cron/sync` | GET | `Bearer CRON_SECRET` | chạy đồng bộ (mục 4.1); prod: Nest. Next trả 410 nếu `CRON_ON_WORKER=1` |
+| `/api/internal/revalidate` | POST | `Bearer CRON_SECRET` | Nest gọi sau sync/summary — `revalidateTag` |
 | `/api/setup` | POST | `CRON_SECRET` | nạp Trang từ token Meta |
 | `/api/tiktok/connect`, `/callback` | GET | phiên đăng nhập (admin/…) `NOT VERIFIED` | OAuth TikTok |
 | `/api/rnd/workspace` | GET | phiên | dữ liệu bảng R&D theo vai trò (`?keys=`) |
@@ -126,14 +127,14 @@ Còn lại là server actions (`src/app/**/actions.ts`, `*-actions.ts`).
 2. **DB:** chạy tay `supabase/migrations/011 → 039` theo thứ tự trong Supabase SQL Editor; sau đó `notify pgrst, 'reload schema'` (đã có cuối mỗi file). Project Qlydonhang chạy `supabase/qlydonhang/001–007`.
 3. **Admin đầu tiên:** `npm run create-admin` (`scripts/create-admin.mjs`, đọc `.env.local`).
 4. **Kiểm tra token Meta:** `npm run fb:check`. **Test luật:** `npm test` (`scripts/test-rules.mts`). Dữ liệu mẫu: `scripts/seed-*.mjs`.
-5. **Deploy:** Vercel (Next build). Đặt `APP_URL`, `CRON_SECRET` vào GitHub Secrets để lịch đồng bộ chạy.
+5. **Deploy:** Vercel (Next) + Nest worker. GitHub Secrets: `WORKER_URL` (Nest), `CRON_SECRET`. Nest env: `APP_URL` (Next) cho webhook revalidate. Vercel: `CRON_ON_WORKER=1` sau cutover.
 6. **Thêm Page mới:** gọi `/api/setup` hoặc dùng `/connections`, `/team`; kênh TikTok qua nút kết nối.
 
 ## 8. Rủi ro, điểm nghi vấn, việc cần xác minh
 
 1. **POSSIBLE BUG:** `lib/commercial-eval.ts` truy vấn cột `revenue/returned_value/cost/returned_cost` của `sales.daily_sales` đã bị migration 028 xoá → phần giá bán thực tế của thương mại hoá có thể lỗi/rỗng (chi tiết ở DATABASE_SCHEMA §9).
 2. **Tài chính đang ẩn:** `SHOW_FINANCE=false` (`lib/features.ts`) — dữ liệu tiền không còn đồng bộ vào DB (028); các tài liệu cũ nhắc doanh thu/lợi nhuận không còn đúng.
-3. **Cron đồng bộ:** chỉ còn GitHub Actions `sync.yml` (11:07 + 23:07 UTC, tức 06:07 và 18:07 giờ VN) gọi `/api/cron/sync`; đã bỏ Vercel cron khỏi `vercel.json`. Cần secret `CRON_SECRET` (và `APP_URL` nếu khác địa chỉ mặc định) trong GitHub — thiếu thì KHÔNG còn lịch đồng bộ tự động nào.
+3. **Cron đồng bộ:** GitHub Actions gọi Nest `WORKER_URL` (`sync.yml` 11:07 + 23:07 UTC). Đã bỏ Vercel cron khỏi `vercel.json`. Next `/api/cron/*` tắt bằng `CRON_ON_WORKER=1`. Thiếu `WORKER_URL`/`CRON_SECRET` thì KHÔNG còn lịch tự động. Rollback: `WORKER_URL` = Next, xóa `CRON_ON_WORKER`.
 4. Quyền chi tiết của các trang bảng `/rnd/*` phụ thuộc `wsKeysFor(role)` và lib — chưa liệt kê từng ô; đối chiếu trực tiếp trước khi cấp quyền mới. Mọi action ghi đều phải gọi `requireActionUser` (UI ẩn nút **không** đủ bảo vệ).
 5. **Không có policy RLS** — an toàn nhờ chỉ dùng `service_role` ở server; **tuyệt đối không** để lộ `SUPABASE_SECRET_KEY` ra client. `NOT VERIFIED`: chưa kiểm bảo mật tổng thể.
 6. Schema DB thật chưa được đối chiếu (project app không truy cập được lúc lập tài liệu); `post_links` còn dùng hay không: `NEEDS VERIFICATION`.

@@ -1,5 +1,5 @@
 import { NextResponse, after } from "next/server";
-import { isAuthorized } from "@/lib/sync/auth";
+import { cronOnWorker, isAuthorized } from "@/lib/sync/auth";
 import { checkSpuSummary, refreshSpuSummary, summaryNeedsRefresh } from "@/lib/spu-summary";
 import { checkSpuParity } from "@/lib/spu-parity";
 import { checkVideoDaily, refreshVideoDaily } from "@/lib/video-daily";
@@ -16,6 +16,7 @@ export const maxDuration = 300;
 // GET /api/cron/spu-summary?video=inc  → nạp tăng dần bảng video SQL (video=full: dựng lại cả 360 ngày, lần đầu / bản dựng đêm)
 export async function GET(req: Request) {
   if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (cronOnWorker()) return NextResponse.json({ error: "moved" }, { status: 410 });
   const params = new URL(req.url).searchParams;
   if (params.get("check") === "1") return NextResponse.json(await checkSpuSummary());
   if (params.get("check") === "2") return NextResponse.json(await checkSpuParity());

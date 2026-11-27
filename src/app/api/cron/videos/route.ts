@@ -1,5 +1,5 @@
 import { NextResponse, after } from "next/server";
-import { isAuthorized } from "@/lib/sync/auth";
+import { cronOnWorker, isAuthorized } from "@/lib/sync/auth";
 import { runApiVideoSync } from "@/lib/sync/api-videos";
 
 export const maxDuration = 300;
@@ -9,6 +9,7 @@ export const maxDuration = 300;
 // Kích hoạt: GitHub Actions mỗi ngày (.github/workflows/videos.yml) hoặc nút "Đồng bộ ngay" ở Cài đặt.
 export async function GET(req: Request) {
   if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (cronOnWorker()) return NextResponse.json({ error: "moved" }, { status: 410 });
   if (new URL(req.url).searchParams.get("wait") === "1") return NextResponse.json(await runApiVideoSync());
   after(async () => { await runApiVideoSync(); });
   return NextResponse.json({ accepted: true }, { status: 202 });

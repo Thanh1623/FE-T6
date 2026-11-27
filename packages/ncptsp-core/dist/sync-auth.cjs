@@ -17,9 +17,10 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// ../NCPTSP/ncptsp/src/lib/sync/auth.ts
+// src/lib/sync/auth.ts
 var auth_exports = {};
 __export(auth_exports, {
+  cronOnWorker: () => cronOnWorker,
   isAuthorized: () => isAuthorized
 });
 module.exports = __toCommonJS(auth_exports);
@@ -31,7 +32,11 @@ function isAuthorized(req) {
   const want = Buffer.from(`Bearer ${secret}`);
   return got.length === want.length && (0, import_node_crypto.timingSafeEqual)(got, want);
 }
+function cronOnWorker() {
+  return process.env.CRON_ON_WORKER === "1";
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  cronOnWorker,
   isAuthorized
 });

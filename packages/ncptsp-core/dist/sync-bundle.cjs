@@ -20,14 +20,14 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/server-only.ts
+// packages/ncptsp-core/shim/server-only.ts
 var init_server_only = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/server-only.ts"() {
+  "packages/ncptsp-core/shim/server-only.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/paging.ts
+// src/lib/paging.ts
 async function withRetry(run) {
   let res = await run();
   for (let n = 1; n <= 3 && res.error && isTimeout(res.error); n++) {
@@ -72,7 +72,7 @@ async function fetchAllByKey(build, keyOf, fallback) {
 }
 var PAGE_SIZE, PARALLEL, isTimeout, PAGE;
 var init_paging = __esm({
-  "../NCPTSP/ncptsp/src/lib/paging.ts"() {
+  "src/lib/paging.ts"() {
     "use strict";
     PAGE_SIZE = 1e3;
     PARALLEL = 6;
@@ -81,7 +81,7 @@ var init_paging = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/supabase/admin.ts
+// src/lib/supabase/admin.ts
 function supabaseAdmin() {
   admin ??= (0, import_supabase_js.createClient)(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
     auth: { persistSession: false }
@@ -95,7 +95,7 @@ function supabaseOrders() {
 }
 var import_supabase_js, admin, sb;
 var init_admin = __esm({
-  "../NCPTSP/ncptsp/src/lib/supabase/admin.ts"() {
+  "src/lib/supabase/admin.ts"() {
     "use strict";
     init_server_only();
     import_supabase_js = require("@supabase/supabase-js");
@@ -110,19 +110,28 @@ var init_admin = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-cache.ts
+// packages/ncptsp-core/shim/next-cache.ts
 function unstable_cache(fn, _keyParts, _opts) {
   return fn;
 }
-function revalidateTag(_tag, _profile) {
+function revalidateTag(tag, profile) {
+  const base = process.env.APP_URL?.replace(/\/$/, "");
+  const secret = process.env.CRON_SECRET;
+  if (!base || !secret) return;
+  void fetch(`${base}/api/internal/revalidate`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${secret}`, "content-type": "application/json" },
+    body: JSON.stringify({ tags: [tag], profile: profile ?? { expire: 0 } }),
+    signal: AbortSignal.timeout(1e4)
+  }).catch((e) => console.error("revalidate webhook l\u1ED7i", tag, e));
 }
 var init_next_cache = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-cache.ts"() {
+  "packages/ncptsp-core/shim/next-cache.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/cache-tags.ts
+// src/lib/cache-tags.ts
 function bustSoft(...tags) {
   for (const t of tags) {
     try {
@@ -141,7 +150,7 @@ function bust(...tags) {
 }
 var TAG;
 var init_cache_tags = __esm({
-  "../NCPTSP/ncptsp/src/lib/cache-tags.ts"() {
+  "src/lib/cache-tags.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -166,17 +175,17 @@ var init_cache_tags = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/tiktok/name.ts
+// src/lib/tiktok/name.ts
 var normTikTokName, TT_NAME_PREFIX;
 var init_name = __esm({
-  "../NCPTSP/ncptsp/src/lib/tiktok/name.ts"() {
+  "src/lib/tiktok/name.ts"() {
     "use strict";
     normTikTokName = (s) => s.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
     TT_NAME_PREFIX = "ttn:";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/daily-sales.ts
+// src/lib/daily-sales.ts
 function pageOfTags(tags) {
   if (!tags) return "";
   const parts = tags.split(",").map((t) => t.trim());
@@ -301,7 +310,7 @@ async function loadDailySalesDb(q) {
 }
 var DAY, vnDay, addDays, CHANNEL_OF_SOURCE, channelOfSource, winCache, chunks, salesCached;
 var init_daily_sales = __esm({
-  "../NCPTSP/ncptsp/src/lib/daily-sales.ts"() {
+  "src/lib/daily-sales.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -343,10 +352,10 @@ var init_daily_sales = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/roles.ts
+// src/lib/roles.ts
 var ROLE_LABELS, ROLES;
 var init_roles = __esm({
-  "../NCPTSP/ncptsp/src/lib/roles.ts"() {
+  "src/lib/roles.ts"() {
     "use strict";
     ROLE_LABELS = {
       admin: "Qu\u1EA3n l\xFD",
@@ -358,15 +367,15 @@ var init_roles = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/session-worker.ts
+// packages/ncptsp-core/shim/session-worker.ts
 var init_session_worker = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/session-worker.ts"() {
+  "packages/ncptsp-core/shim/session-worker.ts"() {
     "use strict";
     init_roles();
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/tags.ts
+// src/lib/tags.ts
 function parseTestCode(code) {
   const c = code.toUpperCase();
   let m = c.match(/^T([1-9])(\d{4,})$/);
@@ -409,7 +418,7 @@ function parseTags(tags, known, rules = DEFAULT_RULES) {
 }
 var DEFAULT_RULES, CODE_SHAPE, TEST_SHAPE, isTestCode, TEST_CATEGORY_NAMES, LEGACY_LETTER;
 var init_tags = __esm({
-  "../NCPTSP/ncptsp/src/lib/tags.ts"() {
+  "src/lib/tags.ts"() {
     "use strict";
     DEFAULT_RULES = { staff_pattern: "^k[0-9]{3}$", line_pattern: "^a[1-5]$", concept: { c: "old", m: "new" } };
     CODE_SHAPE = /^[a-z]{1,4}[0-9]{1,}$/;
@@ -430,7 +439,7 @@ var init_tags = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-code.ts
+// src/lib/spu-code.ts
 function isNonProduct(name, code) {
   if (/TRUNGGIAN/i.test(code)) return true;
   const t = fold(String(name ?? "")).replace(/^(\s*[\(\[][^\)\]]*[\)\]])+\s*/, "").trim();
@@ -448,7 +457,7 @@ function groupOfProduct(name, code) {
 }
 var spuOf, fold, KEYWORDS, PREFIX_GROUP, NON_PRODUCT_NAME;
 var init_spu_code = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-code.ts"() {
+  "src/lib/spu-code.ts"() {
     "use strict";
     spuOf = (sku) => String(sku ?? "").replace(/^#/, "").trim().toUpperCase().split("-")[0].trim();
     fold = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
@@ -482,7 +491,7 @@ var init_spu_code = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/code-links.ts
+// src/lib/code-links.ts
 async function loadCodeLinks() {
   const { data, error } = await sb.rnd().from("product_code_links").select("id, product_id, test_code, sku_code, launch_date, note, created_at").order("created_at");
   if (error) return [];
@@ -511,7 +520,7 @@ function testPhaseCodes(codes, publishedAt, links) {
 }
 var vnDate;
 var init_code_links = __esm({
-  "../NCPTSP/ncptsp/src/lib/code-links.ts"() {
+  "src/lib/code-links.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -523,7 +532,7 @@ var init_code_links = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/meta/graph.ts
+// src/lib/meta/graph.ts
 function appSecretProof(token) {
   const secret = process.env.FB_APP_SECRET;
   return secret ? (0, import_node_crypto.createHmac)("sha256", secret).update(token).digest("hex") : null;
@@ -560,7 +569,7 @@ async function graphAll(path, params, maxPages = 20) {
 }
 var import_node_crypto, GRAPH_VERSION, GRAPH, GraphError, RATE_LIMIT_CODES, TRANSIENT_CODES;
 var init_graph = __esm({
-  "../NCPTSP/ncptsp/src/lib/meta/graph.ts"() {
+  "src/lib/meta/graph.ts"() {
     "use strict";
     init_server_only();
     import_node_crypto = require("node:crypto");
@@ -577,10 +586,10 @@ var init_graph = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/meta/metrics.ts
+// src/lib/meta/metrics.ts
 var PAGE_DAILY_COLUMNS, POST_COLUMNS;
 var init_metrics = __esm({
-  "../NCPTSP/ncptsp/src/lib/meta/metrics.ts"() {
+  "src/lib/meta/metrics.ts"() {
     "use strict";
     PAGE_DAILY_COLUMNS = {
       page_media_view: "views",
@@ -601,7 +610,7 @@ var init_metrics = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/platforms.ts
+// src/lib/platforms.ts
 function kindOf(type, permalink) {
   if (permalink?.includes("/reel/") || permalink?.includes("/shorts/")) return "reel";
   if (type === "added_video") return "video";
@@ -610,12 +619,12 @@ function kindOf(type, permalink) {
   return "other";
 }
 var init_platforms = __esm({
-  "../NCPTSP/ncptsp/src/lib/platforms.ts"() {
+  "src/lib/platforms.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/system-log.ts
+// src/lib/system-log.ts
 async function logSystem(e) {
   try {
     const { error } = await sb.core().from("system_logs").insert({
@@ -637,7 +646,7 @@ async function logSystem(e) {
   }
 }
 var init_system_log = __esm({
-  "../NCPTSP/ncptsp/src/lib/system-log.ts"() {
+  "src/lib/system-log.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -645,7 +654,7 @@ var init_system_log = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sync/api-videos.ts
+// src/lib/sync/api-videos.ts
 async function apiFreshFacebook(ids, maxAgeHours = 72) {
   const fresh = /* @__PURE__ */ new Set();
   const check = async (id) => {
@@ -663,7 +672,7 @@ async function apiFreshFacebook(ids, maxAgeHours = 72) {
 }
 var BASE;
 var init_api_videos = __esm({
-  "../NCPTSP/ncptsp/src/lib/sync/api-videos.ts"() {
+  "src/lib/sync/api-videos.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -672,7 +681,7 @@ var init_api_videos = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/eval/views-window.ts
+// src/lib/eval/views-window.ts
 function gainInRange(a) {
   const lag = a.maxLag ?? 4;
   if (a.pubDay > a.to) return null;
@@ -705,7 +714,7 @@ function addGain(t, g, opts) {
 }
 var DAY2, shiftDay, gapDays, sub, ZERO, emptyTotals;
 var init_views_window = __esm({
-  "../NCPTSP/ncptsp/src/lib/eval/views-window.ts"() {
+  "src/lib/eval/views-window.ts"() {
     "use strict";
     DAY2 = 864e5;
     shiftDay = (d, n) => new Date(Date.parse(d) + n * DAY2).toISOString().slice(0, 10);
@@ -721,7 +730,7 @@ var init_views_window = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/post-views.ts
+// src/lib/post-views.ts
 async function snapshotsAt(postIds, day) {
   const out = /* @__PURE__ */ new Map();
   if (!postIds.length) return out;
@@ -768,7 +777,7 @@ async function codeViewsInRange(posts, from, to) {
 }
 var vnDay2;
 var init_post_views = __esm({
-  "../NCPTSP/ncptsp/src/lib/post-views.ts"() {
+  "src/lib/post-views.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -777,7 +786,7 @@ var init_post_views = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/eval/rules.ts
+// src/lib/eval/rules.ts
 function buildMetrics(raw) {
   return {
     ...raw,
@@ -808,17 +817,17 @@ function decideAuto(salesPass, trafficPass, windowOver) {
 }
 var rulesPass;
 var init_rules = __esm({
-  "../NCPTSP/ncptsp/src/lib/eval/rules.ts"() {
+  "src/lib/eval/rules.ts"() {
     "use strict";
     init_tags();
     rulesPass = (checks, match) => checks.length > 0 && (match === "all" ? checks.every((c) => c.pass) : checks.some((c) => c.pass));
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/pipeline-constants.ts
+// src/lib/pipeline-constants.ts
 var trafficFrom, PRODUCT_GROUPS, APPROVAL_FROM_LABEL, APPROVAL_TO_LABEL, GROUP_OPTS;
 var init_pipeline_constants = __esm({
-  "../NCPTSP/ncptsp/src/lib/pipeline-constants.ts"() {
+  "src/lib/pipeline-constants.ts"() {
     "use strict";
     trafficFrom = (p) => p.stage && p.created_at ? new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(p.created_at)) : null;
     PRODUCT_GROUPS = { gmv: "GMV", traffic: "Traffic", profit: "Profit", return: "Return" };
@@ -828,7 +837,7 @@ var init_pipeline_constants = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/kpi-constants.ts
+// src/lib/kpi-constants.ts
 function parseRules(raw) {
   if (!Array.isArray(raw) || raw.length === 0) return "C\u1EA7n \xEDt nh\u1EA5t 1 \u0111i\u1EC1u ki\u1EC7n KPI";
   const out = [];
@@ -843,7 +852,7 @@ function parseRules(raw) {
 }
 var KPI_METRICS, KPI_OPS;
 var init_kpi_constants = __esm({
-  "../NCPTSP/ncptsp/src/lib/kpi-constants.ts"() {
+  "src/lib/kpi-constants.ts"() {
     "use strict";
     KPI_METRICS = {
       views: { label: "L\u01B0\u1EE3t xem", unit: "", group: "traffic", hint: "T\u1ED5ng l\u01B0\u1EE3t xem c\xE1c b\xE0i g\u1EAFn m\xE3" },
@@ -859,7 +868,7 @@ var init_kpi_constants = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-tracking.ts
+// src/lib/spu-tracking.ts
 function saleFlags(stock, sl, R) {
   const inStock = stock > 0;
   return {
@@ -901,7 +910,7 @@ function viewOf(row, opt) {
 }
 var DEFAULT_SPU_RULES;
 var init_spu_tracking = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-tracking.ts"() {
+  "src/lib/spu-tracking.ts"() {
     "use strict";
     DEFAULT_SPU_RULES = {
       // Phân loại bán THEO SỐ LƯỢNG BÁN 30 NGÀY GẦN NHẤT (SL) (kể cả SPU hết hàng vẫn bán; Tồn xấu chỉ tính SPU còn hàng):
@@ -924,7 +933,7 @@ var init_spu_tracking = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-rules.ts
+// src/lib/spu-rules.ts
 var spu_rules_exports = {};
 __export(spu_rules_exports, {
   SPU_RULES_KEY: () => SPU_RULES_KEY,
@@ -968,7 +977,7 @@ async function loadVideoWinRules() {
 }
 var SPU_RULES_KEY, num;
 var init_spu_rules = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-rules.ts"() {
+  "src/lib/spu-rules.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -979,10 +988,10 @@ var init_spu_rules = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-options.ts
+// src/lib/rnd-options.ts
 var CYCLE, o, DEFAULT_OPTIONS, DRAFT_ORDER, PLACED_ORDER, normOrderStatus, flagged;
 var init_rnd_options = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-options.ts"() {
+  "src/lib/rnd-options.ts"() {
     "use strict";
     CYCLE = [1, 13, 3, 15, 9, 16, 4, 12, 7, 14, 2, 17];
     o = (values) => values.map((value, i) => ({ value, color: CYCLE[i % CYCLE.length] }));
@@ -1013,7 +1022,7 @@ var init_rnd_options = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/pipeline.ts
+// src/lib/pipeline.ts
 async function getTeams(activeOnly = false) {
   const all = await allTeams();
   return activeOnly ? all.filter((t) => t.is_active) : all;
@@ -1027,7 +1036,7 @@ async function getRndOptions() {
 }
 var allTeams, getAllProfiles, rndOptionsRaw;
 var init_pipeline = __esm({
-  "../NCPTSP/ncptsp/src/lib/pipeline.ts"() {
+  "src/lib/pipeline.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -1055,7 +1064,7 @@ var init_pipeline = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/eval/engine.ts
+// src/lib/eval/engine.ts
 async function inChunks(keys, read, size = 200) {
   const out = [];
   for (let i = 0; i < keys.length; i += size * 4) {
@@ -1370,7 +1379,7 @@ async function advanceToWin(results) {
 }
 var DAY3, vnDate2, shift, daysIncl;
 var init_engine = __esm({
-  "../NCPTSP/ncptsp/src/lib/eval/engine.ts"() {
+  "src/lib/eval/engine.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1391,7 +1400,7 @@ var init_engine = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/meta/token.ts
+// src/lib/meta/token.ts
 function metaTokens() {
   const out = [];
   if (process.env.FB_USER_TOKEN) out.push({ source: "user", token: process.env.FB_USER_TOKEN });
@@ -1435,7 +1444,7 @@ async function inspectToken(source, token) {
 }
 var TOKEN_LABELS, REQUIRED_SCOPES, DAY_MS, cachedStatuses;
 var init_token = __esm({
-  "../NCPTSP/ncptsp/src/lib/meta/token.ts"() {
+  "src/lib/meta/token.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -1455,26 +1464,26 @@ var init_token = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-server.ts
+// packages/ncptsp-core/shim/next-server.ts
 function after(task) {
   void Promise.resolve().then(() => task());
 }
 var init_next_server = __esm({
-  "../NCPTSP/ncptsp/packages/ncptsp-core/shim/next-server.ts"() {
+  "packages/ncptsp-core/shim/next-server.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-workspace-types.ts
+// src/lib/rnd-workspace-types.ts
 var RND_CHANNEL;
 var init_rnd_workspace_types = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-workspace-types.ts"() {
+  "src/lib/rnd-workspace-types.ts"() {
     "use strict";
     RND_CHANNEL = "rnd-changes";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-ping.ts
+// src/lib/rnd-ping.ts
 function pingRnd() {
   const send = async () => {
     try {
@@ -1491,7 +1500,7 @@ function pingRnd() {
   }
 }
 var init_rnd_ping = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-ping.ts"() {
+  "src/lib/rnd-ping.ts"() {
     "use strict";
     init_server_only();
     init_next_server();
@@ -1500,7 +1509,7 @@ var init_rnd_ping = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-code-stats.ts
+// src/lib/rnd-code-stats.ts
 async function rndCodeStats(items) {
   if (!items.length) return /* @__PURE__ */ new Map();
   const payload = items.map((i) => ({ id: i.id, codes: [...new Set(i.codes.map((c) => c.toUpperCase()))].join(","), d_from: i.from ?? null, d_to: i.to ?? null }));
@@ -1524,26 +1533,26 @@ async function rndCodeStats(items) {
   return out;
 }
 var init_rnd_code_stats = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-code-stats.ts"() {
+  "src/lib/rnd-code-stats.ts"() {
     "use strict";
     init_server_only();
     init_admin();
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-constants.ts
+// src/lib/rnd-constants.ts
 var RND_BUCKET;
 var init_rnd_constants = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-constants.ts"() {
+  "src/lib/rnd-constants.ts"() {
     "use strict";
     RND_BUCKET = "rnd-images";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/media.ts
+// src/lib/media.ts
 var import_cloudinary;
 var init_media = __esm({
-  "../NCPTSP/ncptsp/src/lib/media.ts"() {
+  "src/lib/media.ts"() {
     "use strict";
     init_server_only();
     import_cloudinary = require("cloudinary");
@@ -1552,7 +1561,7 @@ var init_media = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd.ts
+// src/lib/rnd.ts
 async function getCardStats(input) {
   const out = {};
   const products = input.filter((p) => !!p.code);
@@ -1640,7 +1649,7 @@ async function getCardStats(input) {
 }
 var SIGN_TTL, REUSE_MS, THUMB, sharedThumb, DAY_MS2, vnToday, shift2;
 var init_rnd = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd.ts"() {
+  "src/lib/rnd.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -1669,7 +1678,7 @@ var init_rnd = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/rnd-metrics.ts
+// src/lib/rnd-metrics.ts
 async function refreshProductMetrics() {
   const products = await fetchAll((a, b) => sb.rnd().from("products").select("id, code, sapo_code, stage, created_at").not("code", "is", null).order("id").range(a, b));
   if (!products.length) return "kh\xF4ng c\xF3 m\u1EABu n\xE0o c\xF3 m\xE3";
@@ -1701,14 +1710,14 @@ async function refreshProductMetrics() {
   return `${rows.length} m\u1EABu`;
 }
 var init_rnd_metrics = __esm({
-  "../NCPTSP/ncptsp/src/lib/rnd-metrics.ts"() {
+  "src/lib/rnd-metrics.ts"() {
     "use strict";
     init_admin();
     init_rnd();
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sales-api.ts
+// src/lib/sales-api.ts
 async function get(path, params) {
   const url = new URL(`${process.env.SALES_API_URL.replace(/\/+$/, "")}/${path}`);
   for (const [k, v] of Object.entries(params)) if (v !== null) url.searchParams.set(k, String(v));
@@ -1731,7 +1740,7 @@ async function fetchApiCatalog() {
 }
 var salesApiEnabled, fetchApiSales;
 var init_sales_api = __esm({
-  "../NCPTSP/ncptsp/src/lib/sales-api.ts"() {
+  "src/lib/sales-api.ts"() {
     "use strict";
     init_server_only();
     salesApiEnabled = () => !!process.env.SALES_API_URL;
@@ -1739,7 +1748,7 @@ var init_sales_api = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/tiktok/api.ts
+// src/lib/tiktok/api.ts
 async function tokenRequest(body) {
   const res = await fetch(`${API}/oauth/token/`, {
     method: "POST",
@@ -1782,7 +1791,7 @@ async function listVideos(token, sinceSec, maxPages = 10) {
 }
 var API, TikTokError, refreshToken, VIDEO_FIELDS;
 var init_api = __esm({
-  "../NCPTSP/ncptsp/src/lib/tiktok/api.ts"() {
+  "src/lib/tiktok/api.ts"() {
     "use strict";
     init_server_only();
     API = "https://open.tiktokapis.com/v2";
@@ -1797,7 +1806,7 @@ var init_api = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/tiktok/delta.ts
+// src/lib/tiktok/delta.ts
 function dailyDelta(prev, now, nowMs) {
   const d = { views: 0, engagements: 0 };
   for (const v of now) {
@@ -1818,13 +1827,13 @@ function followDelta(prev, cur) {
 }
 var FRESH_HOURS;
 var init_delta = __esm({
-  "../NCPTSP/ncptsp/src/lib/tiktok/delta.ts"() {
+  "src/lib/tiktok/delta.ts"() {
     "use strict";
     FRESH_HOURS = 48;
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sync/snapshots.ts
+// src/lib/sync/snapshots.ts
 async function snapshotPosts(rows, opts = {}) {
   const cutoff = Date.now() - 45 * DAY_MS3;
   const day = opts.date ?? vnDay3(Date.now());
@@ -1855,7 +1864,7 @@ async function pruneSnapshots() {
 }
 var DAY_MS3, vnDay3;
 var init_snapshots = __esm({
-  "../NCPTSP/ncptsp/src/lib/sync/snapshots.ts"() {
+  "src/lib/sync/snapshots.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1864,7 +1873,7 @@ var init_snapshots = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sync/tiktok.ts
+// src/lib/sync/tiktok.ts
 async function activeTikTok() {
   const [{ data: ch, error }, { data: toks, error: tErr }] = await Promise.all([
     sb.social().from("channels").select("id, platform, name, last_synced_at").eq("is_active", true).eq("platform", "tiktok"),
@@ -1966,7 +1975,7 @@ async function syncTikTokChannel(ch, postDays, extractHashtags2) {
 }
 var DAY_MS4, vnDay4;
 var init_tiktok = __esm({
-  "../NCPTSP/ncptsp/src/lib/sync/tiktok.ts"() {
+  "src/lib/sync/tiktok.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -1978,7 +1987,7 @@ var init_tiktok = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/youtube/api.ts
+// src/lib/youtube/api.ts
 async function call2(path, params) {
   const key = process.env.YOUTUBE_API_KEY;
   if (!key) throw new Error("Ch\u01B0a c\u1EA5u h\xECnh YOUTUBE_API_KEY");
@@ -2042,7 +2051,7 @@ async function getVideos(ids) {
 }
 var BASE2, youtubeConfigured, uploadsOf, durationSec;
 var init_api2 = __esm({
-  "../NCPTSP/ncptsp/src/lib/youtube/api.ts"() {
+  "src/lib/youtube/api.ts"() {
     "use strict";
     init_server_only();
     BASE2 = "https://www.googleapis.com/youtube/v3";
@@ -2055,7 +2064,7 @@ var init_api2 = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sync/youtube.ts
+// src/lib/sync/youtube.ts
 async function activeYouTube() {
   if (!youtubeConfigured()) return [];
   const { data, error } = await sb.social().from("channels").select("id, platform, name, last_synced_at").eq("is_active", true).eq("platform", "youtube");
@@ -2135,7 +2144,7 @@ ${v.description}`), ...extractHashtags2(tagText)])],
 }
 var DAY_MS5, vnDay5, YT_INITIAL_DAYS;
 var init_youtube = __esm({
-  "../NCPTSP/ncptsp/src/lib/sync/youtube.ts"() {
+  "src/lib/sync/youtube.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -2148,7 +2157,7 @@ var init_youtube = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/date-range.ts
+// src/lib/date-range.ts
 function resolveRange(range, today) {
   const monthStart = `${today.slice(0, 8)}01`;
   if (range === "today") return { from: today, to: today };
@@ -2163,14 +2172,14 @@ function resolveRange(range, today) {
 }
 var DAY_MS6, shiftDay2;
 var init_date_range = __esm({
-  "../NCPTSP/ncptsp/src/lib/date-range.ts"() {
+  "src/lib/date-range.ts"() {
     "use strict";
     DAY_MS6 = 864e5;
     shiftDay2 = (d, n) => new Date(Date.parse(d) + n * DAY_MS6).toISOString().slice(0, 10);
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/format.ts
+// src/lib/format.ts
 function fmtCompact(n) {
   const f = (v) => v < 10 ? v.toLocaleString("vi-VN", { maximumFractionDigits: 1 }) : Math.round(v).toLocaleString("vi-VN");
   const a = Math.abs(n);
@@ -2180,13 +2189,13 @@ function fmtCompact(n) {
 }
 var fmtInt;
 var init_format = __esm({
-  "../NCPTSP/ncptsp/src/lib/format.ts"() {
+  "src/lib/format.ts"() {
     "use strict";
     fmtInt = (n) => Math.round(n).toLocaleString("vi-VN");
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/data.ts
+// src/lib/data.ts
 var data_exports = {};
 __export(data_exports, {
   CHANNELS: () => CHANNELS,
@@ -2350,7 +2359,7 @@ function fmtMoneyShort(n) {
 }
 var DAY_MS7, RANGE_PRESETS, CHANNELS, one, isDate, limitByTeams, getAccounts, OVERVIEW_METRICS, getPostsPageCached, catalogCache, getLatestSyncLogs, fmtMoney, fmtDate, fmtDateTime;
 var init_data = __esm({
-  "../NCPTSP/ncptsp/src/lib/data.ts"() {
+  "src/lib/data.ts"() {
     "use strict";
     init_server_only();
     init_date_range();
@@ -2406,7 +2415,7 @@ var init_data = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/db-gate.ts
+// src/lib/db-gate.ts
 async function heavyRpc(fn, retries = 1, waitMs = 1500) {
   let res = await heavyQuery(async () => await fn());
   for (let a = 0; a < retries && isTimeout2(res.error); a++) {
@@ -2428,7 +2437,7 @@ async function heavyQuery(fn) {
 }
 var MAX, running, waiting, isTimeout2;
 var init_db_gate = __esm({
-  "../NCPTSP/ncptsp/src/lib/db-gate.ts"() {
+  "src/lib/db-gate.ts"() {
     "use strict";
     MAX = 3;
     running = 0;
@@ -2437,7 +2446,7 @@ var init_db_gate = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sku-overrides.ts
+// src/lib/sku-overrides.ts
 async function loadSkuOverrides() {
   try {
     return new Map((await cached()).map((r) => [r.sku.toUpperCase(), r.spu_code]));
@@ -2447,7 +2456,7 @@ async function loadSkuOverrides() {
 }
 var cached;
 var init_sku_overrides = __esm({
-  "../NCPTSP/ncptsp/src/lib/sku-overrides.ts"() {
+  "src/lib/sku-overrides.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -2461,7 +2470,7 @@ var init_sku_overrides = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-alias.ts
+// src/lib/spu-alias.ts
 async function loadSpuAliases() {
   try {
     return new Map((await cached2()).map((r) => [r.old_code.toUpperCase(), r.new_code.toUpperCase()]));
@@ -2483,7 +2492,7 @@ function canonPosts(aliases, posts) {
 }
 var cached2, canonOf;
 var init_spu_alias = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-alias.ts"() {
+  "src/lib/spu-alias.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -2498,7 +2507,7 @@ var init_spu_alias = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/staff-teams.ts
+// src/lib/staff-teams.ts
 function buildStaffMatcher(profiles) {
   const ps = profiles.map((p) => ({ ...p, tk: nameTokens(p.name), code: p.teamCode ?? p.team, kd: shiftOf(p.name) }));
   const cache2 = /* @__PURE__ */ new Map();
@@ -2561,7 +2570,7 @@ async function loadStaffLookup() {
 }
 var TEAM_ALIAS, SUFFIX_TEAM, NOISE, fold2, words, nameTokens, hintOf, shiftOf, cached3;
 var init_staff_teams = __esm({
-  "../NCPTSP/ncptsp/src/lib/staff-teams.ts"() {
+  "src/lib/staff-teams.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -2577,7 +2586,7 @@ var init_staff_teams = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-data.ts
+// src/lib/spu-data.ts
 async function loadSpuMeta() {
   await loadSpuRows();
   return cache.meta;
@@ -2923,7 +2932,7 @@ async function loadSold30(since, today, teamOfLine, teamOfChannel, canon = (c) =
 }
 var DAY4, vnDay6, dayDiff, addDays3, PLATFORM, ADS_TEAM, ADS_TAGS, isAdsTags, VIDEO_DAYS, cache, loadSpuRowsLight, videoChunk, recentVideos, olderVideos, skuSummaryCached, IMG_BASE, ownImagesCached, ownNamesCached, excludedCached, isCraftName, receiptsCached, CATALOG_CHUNK, CATALOG_CHUNKS, catalogChunk, stockCached, orderGroupsCached;
 var init_spu_data = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-data.ts"() {
+  "src/lib/spu-data.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -3006,7 +3015,7 @@ var init_spu_data = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/video-daily.ts
+// src/lib/video-daily.ts
 async function refreshVideoDaily(opts = {}) {
   const t0 = Date.now();
   try {
@@ -3039,7 +3048,7 @@ async function refreshVideoDaily(opts = {}) {
 }
 var missing, dayStr, addDay;
 var init_video_daily = __esm({
-  "../NCPTSP/ncptsp/src/lib/video-daily.ts"() {
+  "src/lib/video-daily.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -3049,7 +3058,7 @@ var init_video_daily = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/team-lines.ts
+// src/lib/team-lines.ts
 async function refreshTeamLines(force = false) {
   try {
     const db = sb.sales();
@@ -3081,7 +3090,7 @@ async function refreshTeamLines(force = false) {
 }
 var isTimeout3;
 var init_team_lines = __esm({
-  "../NCPTSP/ncptsp/src/lib/team-lines.ts"() {
+  "src/lib/team-lines.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -3089,7 +3098,7 @@ var init_team_lines = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-summary-build.ts
+// src/lib/spu-summary-build.ts
 function buildSummaryTables(rows, today, runId) {
   const summary = rows.map((r) => ({
     run_id: runId,
@@ -3137,7 +3146,7 @@ function buildSummaryTables(rows, today, runId) {
 }
 var DAY5, addDays4, normSearch;
 var init_spu_summary_build = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-summary-build.ts"() {
+  "src/lib/spu-summary-build.ts"() {
     "use strict";
     DAY5 = 864e5;
     addDays4 = (d, n) => new Date(Date.parse(d) + n * DAY5).toISOString().slice(0, 10);
@@ -3145,7 +3154,7 @@ var init_spu_summary_build = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-winflags.ts
+// src/lib/spu-winflags.ts
 var spu_winflags_exports = {};
 __export(spu_winflags_exports, {
   EMPTY_WIN: () => EMPTY_WIN,
@@ -3317,7 +3326,7 @@ async function loadLaunchWinFlagsByMarket(a) {
 }
 var DAY6, addDays5, vnDay7, cached4, EMPTY_WIN, rollingCached, idsOf, union;
 var init_spu_winflags = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-winflags.ts"() {
+  "src/lib/spu-winflags.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -3341,7 +3350,7 @@ var init_spu_winflags = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/channel-market.ts
+// src/lib/channel-market.ts
 var channel_market_exports = {};
 __export(channel_market_exports, {
   DEFAULT_MARKET: () => DEFAULT_MARKET,
@@ -3359,7 +3368,7 @@ async function loadChannelMarkets() {
 }
 var DEFAULT_MARKET, MARKET_OPTIONS, parseMarket, marketForSql, cached5;
 var init_channel_market = __esm({
-  "../NCPTSP/ncptsp/src/lib/channel-market.ts"() {
+  "src/lib/channel-market.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -3377,16 +3386,16 @@ var init_channel_market = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/video-win-data.ts
+// src/lib/video-win-data.ts
 var init_video_win_data = __esm({
-  "../NCPTSP/ncptsp/src/lib/video-win-data.ts"() {
+  "src/lib/video-win-data.ts"() {
     "use strict";
     init_server_only();
     init_admin();
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-query.ts
+// src/lib/spu-query.ts
 function viewFromSql(r, q) {
   const sf = saleFlags(r.stock, r.sl30, q.rules);
   const flags = { active: sf.active, inStock: sf.inStock, hot: sf.hot, normal: sf.normal, other: sf.other, slow: sf.slow, bad: sf.bad, star: r.star, win: r.win, winTraffic: r.wt, hasVideo: r.videos > 0 };
@@ -3413,7 +3422,7 @@ function viewFromSql(r, q) {
 }
 var spuReadMode;
 var init_spu_query = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-query.ts"() {
+  "src/lib/spu-query.ts"() {
     "use strict";
     init_server_only();
     init_admin();
@@ -3428,7 +3437,7 @@ var init_spu_query = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-videos.ts
+// src/lib/spu-videos.ts
 function spuVideos(row, opt, today) {
   const end = opt.endAge ?? 0;
   return row.vids.filter((v) => v.age >= end && v.age < end + opt.days).map((v) => ({
@@ -3445,12 +3454,12 @@ function spuVideos(row, opt, today) {
   })).sort((a, b) => b.date.localeCompare(a.date));
 }
 var init_spu_videos = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-videos.ts"() {
+  "src/lib/spu-videos.ts"() {
     "use strict";
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-dash.ts
+// src/lib/spu-dash.ts
 var spu_dash_exports = {};
 __export(spu_dash_exports, {
   DASH_GROUPS: () => DASH_GROUPS,
@@ -3532,7 +3541,7 @@ async function loadDashSpu(q) {
 }
 var DASH_GROUPS, dashRpcParams, dashRpc;
 var init_spu_dash = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-dash.ts"() {
+  "src/lib/spu-dash.ts"() {
     "use strict";
     init_server_only();
     init_next_cache();
@@ -3565,7 +3574,7 @@ var init_spu_dash = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/spu-summary.ts
+// src/lib/spu-summary.ts
 var spu_summary_exports = {};
 __export(spu_summary_exports, {
   checkSpuSummary: () => checkSpuSummary,
@@ -3756,7 +3765,7 @@ function scheduleSpuSummaryRefresh() {
 }
 var CHUNK, MIGRATION_MSG, isMissing, running2, again;
 var init_spu_summary = __esm({
-  "../NCPTSP/ncptsp/src/lib/spu-summary.ts"() {
+  "src/lib/spu-summary.ts"() {
     "use strict";
     init_server_only();
     init_next_server();
@@ -3776,7 +3785,7 @@ var init_spu_summary = __esm({
   }
 });
 
-// ../NCPTSP/ncptsp/src/lib/sync/index.ts
+// src/lib/sync/index.ts
 var index_exports = {};
 __export(index_exports, {
   connectTeamPages: () => connectTeamPages,
@@ -4389,7 +4398,7 @@ async function syncAllRun({ days = 3, postDays = 30, budgetMs = 19e4, concurrenc
 }
 var DAY_MS8, MAX_RANGE_DAYS, metricDate, isoDate, SYNC_LOCK, SYNC_LOCK_TTL_MS;
 var init_index = __esm({
-  "../NCPTSP/ncptsp/src/lib/sync/index.ts"() {
+  "src/lib/sync/index.ts"() {
     init_server_only();
     init_code_links();
     init_graph();
